@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mountain Explorer Slider</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #0a0a0a, #0f3d0f);
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 90%;
+      margin: 20px auto;
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #90ee90;
+      font-size: 3rem;
+    }
+    select {
+      padding: 12px;
+      margin: 0 10px 30px;
+      font-size: 1.2rem;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      border: 2px solid #90ee90;
+      border-radius: 5px;
+    }
+    .slider {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .slides {
+      display: flex;
+      transition: transform 0.6s ease-in-out;
+    }
+    .mountain-card {
+      min-width: 100%;
+      box-sizing: border-box;
+      background: #1a1a1a;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+    .mountain-card img {
+      width: 100%;
+      height: 70vh;
+      object-fit: cover;
+    }
+    .mountain-info {
+      padding: 20px;
+    }
+    .mountain-info h2 {
+      margin: 0 0 10px;
+      color: #90ee90;
+      font-size: 2rem;
+    }
+    .mountain-info p {
+      margin: 6px 0;
+      color: #d0d0d0;
+      font-size: 1.1rem;
+    }
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 128, 0, 0.5);
+      color: #fff;
+      border: none;
+      font-size: 3rem;
+      padding: 15px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    .arrow:hover {
+      background: rgba(0, 255, 0, 0.7);
+    }
+    .prev {
+      left: 20px;
+    }
+    .next {
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mountain Explorer</h1>
+    <label for="country">Country:</label>
+    <select id="country" onchange="loadStates()">
+      <option value="">--Select Country--</option>
+      <option value="Nepal">Nepal</option>
+      <option value="Japan">Japan</option>
+      <option value="Malaysia">Malaysia</option>
+      <option value="USA">USA</option>
+      <option value="Switzerland">Switzerland</option>
+    </select>
+    <label for="state">State/Region:</label>
+    <select id="state" onchange="loadMountains()">
+      <option value="">--Select State--</option>
+    </select>
+
+    <div class="slider" id="slider">
+      <div class="slides" id="slides"></div>
+      <button class="arrow prev" onclick="prevSlide()">&#10094;</button>
+      <button class="arrow next" onclick="nextSlide()">&#10095;</button>
+    </div>
+  </div>
+
+  <script>
+    const states = {
+      Nepal: ["Province No. 1", "Bagmati"],
+      Japan: ["Yamanashi", "Shizuoka"],
+      Malaysia: ["Sabah", "Sarawak"],
+      USA: ["California", "Colorado", "Alaska"],
+      Switzerland: ["Bernese Oberland", "Valais", "Graubünden"]
+    };
+
+    const mountains = {
+      "Province No. 1": [
+        { name: "Mount Everest", height: "8,848 m", distance: "65 km", time: "7–10 days", image: "placeholder.jpg" },
+        { name: "Lhotse", height: "8,516 m", distance: "62 km", time: "7–9 days", image: "placeholder.jpg" }
+      ],
+      Bagmati: [
+        { name: "Langtang Lirung", height: "7,227 m", distance: "60 km", time: "5–7 days", image: "placeholder.jpg" }
+      ],
+      Yamanashi: [
+        { name: "Mount Fuji", height: "3,776 m", distance: "12 km", time: "5–8 hrs", image: "placeholder.jpg" }
+      ],
+      Shizuoka: [
+        { name: "Mount Akaishi", height: "3,190 m", distance: "20 km", time: "2–3 days", image: "placeholder.jpg" }
+      ],
+      Sabah: [
+        { name: "Mount Kinabalu", height: "4,095 m", distance: "8.7 km", time: "2 days", image: "placeholder.jpg" }
+      ],
+      Sarawak: [
+        { name: "Mount Dulit", height: "1,311 m", distance: "15 km", time: "8 hrs", image: "placeholder.jpg" }
+      ],
+      California: [
+        { name: "Mount Whitney", height: "4,421 m", distance: "35 km", time: "2–4 days", image: "placeholder.jpg" }
+      ],
+      Colorado: [
+        { name: "Pikes Peak", height: "4,302 m", distance: "21 km", time: "1–2 days", image: "placeholder.jpg" }
+      ],
+      Alaska: [
+        { name: "Denali", height: "6,190 m", distance: "50 km", time: "2–3 weeks", image: "placeholder.jpg" }
+      ],
+      "Bernese Oberland": [
+        { name: "Jungfrau", height: "4,158 m", distance: "16 km", time: "2–3 days", image: "placeholder.jpg" }
+      ],
+      Valais: [
+        { name: "Matterhorn", height: "4,478 m", distance: "20 km", time: "2–3 days", image: "placeholder.jpg" }
+      ],
+      Graubünden: [
+        { name: "Piz Bernina", height: "4,049 m", distance: "18 km", time: "2–3 days", image: "placeholder.jpg" }
+      ]
+    };
+
+    const slides = document.getElementById('slides');
+    const slider = document.getElementById('slider');
+    let currentIndex = 0;
+    let currentMountains = [];
+    let startX = 0;
+    let isDragging = false;
+
+    function loadStates() {
+      const country = document.getElementById('country').value;
+      const stateSelect = document.getElementById('state');
+      stateSelect.innerHTML = '<option value="">--Select State--</option>';
+      if (states[country]) {
+        states[country].forEach(state => {
+          const option = document.createElement('option');
+          option.value = state;
+          option.textContent = state;
+          stateSelect.appendChild(option);
+        });
+      }
+      slides.innerHTML = '';
+    }
+
+    function loadMountains() {
+      const state = document.getElementById('state').value;
+      currentMountains = mountains[state] || [];
+      renderSlides();
+      showSlide(0);
+    }
+
+    function renderSlides() {
+      slides.innerHTML = '';
+      currentMountains.forEach(mountain => {
+        const card = document.createElement('div');
+        card.className = 'mountain-card';
+        card.innerHTML = `
+          <img src="${mountain.image}" alt="${mountain.name}">
+          <div class="mountain-info">
+            <h2>${mountain.name}</h2>
+            <p><strong>Height:</strong> ${mountain.height}</p>
+            <p><strong>Distance:</strong> ${mountain.distance}</p>
+            <p><strong>Avg Time:</strong> ${mountain.time}</p>
+          </div>
+        `;
+        slides.appendChild(card);
+      });
+    }
+
+    function showSlide(index) {
+      if(index < 0) {
+        currentIndex = currentMountains.length - 1;
+      } else if(index >= currentMountains.length) {
+        currentIndex = 0;
+      } else {
+        currentIndex = index;
+      }
+      slides.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
+
+    function nextSlide() {
+      showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentIndex - 1);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'ArrowRight') nextSlide();
+      if(e.key === 'ArrowLeft') prevSlide();
+    });
+
+    slider.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    });
+
+    slider.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const currentX = e.touches[0].clientX;
+      const diffX = startX - currentX;
+      if (diffX > 50) {
+        nextSlide();
+        isDragging = false;
+      } else if (diffX < -50) {
+        prevSlide();
+        isDragging = false;
+      }
+    });
+
+    slider.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+  </script>
+</body>
+</html>
+
+
