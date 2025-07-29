@@ -2,303 +2,204 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terratrack</title>
+  <title>TerraTrack</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #0a0a0a, #0f3d0f);
-      color: #e0e0e0;
-      overflow-x: hidden;
+      background-color: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 0;
     }
+
     .container {
       max-width: 90%;
       margin: 20px auto;
       text-align: center;
-      position: relative;
     }
+
     h1 {
       margin-bottom: 20px;
       color: #90ee90;
       font-size: 3rem;
     }
-    select {
-      padding: 12px;
-      margin: 0 10px 30px;
-      font-size: 1.2rem;
-      background: #1e1e1e;
-      color: #e0e0e0;
-      border: 2px solid #90ee90;
+
+    select, button {
+      padding: 10px;
+      margin: 10px;
       border-radius: 5px;
-    }
-    .slider {
-      position: relative;
-      width: 100%;
-      height: 80vh;
-      overflow: hidden;
-      touch-action: pan-y;
-    }
-    .slides {
-      display: flex;
-      transition: transform 0.6s ease-in-out;
-    }
-    .mountain-card {
-      min-width: 100%;
-      box-sizing: border-box;
-      background: #1a1a1a;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-      overflow: hidden;
-    }
-    .mountain-card img {
-      width: 100%;
-      height: 70vh;
-      object-fit: cover;
-    }
-    .mountain-info {
-      padding: 20px;
-    }
-    .mountain-info h2 {
-      margin: 0 0 10px;
-      color: #90ee90;
-      font-size: 2rem;
-    }
-    .mountain-info p {
-      margin: 6px 0;
-      color: #d0d0d0;
-      font-size: 1.1rem;
-    }
-    .arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 128, 0, 0.5);
-      color: #fff;
       border: none;
-      font-size: 3rem;
-      padding: 15px;
+    }
+
+    button {
+      background-color: #90ee90;
+      color: black;
       cursor: pointer;
-      border-radius: 50%;
     }
-    .arrow:hover {
-      background: rgba(0, 255, 0, 0.7);
+
+    img {
+      max-width: 90%;
+      border-radius: 15px;
+      margin: 10px 0;
     }
-    .prev {
-      left: 20px;
+
+    .trail-card {
+      background-color: #2e2e2e;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      text-align: left;
     }
-    .next {
-      right: 20px;
+
+    .trail-card h3 {
+      color: #90ee90;
+    }
+
+    .trail-card p {
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Terratrack</h1>
-    <label for="country">Country:</label>
+    <h1>TerraTrack: Mountain Selector</h1>
+
+    <!-- Dropdowns -->
     <select id="country" onchange="loadStates()">
-      <option value="">--Select Country--</option>
+      <option value="">Select Country</option>
+      <option value="Malaysia">Malaysia</option>
       <option value="Nepal">Nepal</option>
       <option value="Japan">Japan</option>
-      <option value="Malaysia">Malaysia</option>
-      <option value="USA">USA</option>
-      <option value="Switzerland">Switzerland</option>
-    </select>
-    <label for="state">State/Region:</label>
-    <select id="state" onchange="loadMountains()">
-      <option value="">--Select State--</option>
     </select>
 
-    <div class="slider" id="slider">
-      <div class="slides" id="slides"></div>
-      <button class="arrow prev" onclick="prevSlide()">&#10094;</button>
-      <button class="arrow next" onclick="nextSlide()">&#10095;</button>
+    <select id="state" onchange="loadMountains()">
+      <option value="">Select State</option>
+    </select>
+
+    <select id="mountain">
+      <option value="">Select Mountain</option>
+    </select>
+
+    <div id="start-button-container"></div>
+
+    <!-- Kinabalu Trail List -->
+    <div id="trail-list" style="display: none; padding: 30px;">
+      <h2 style="color: #90ee90; text-align: center;">Mount Kinabalu Trails</h2>
+      <div id="kinabalu-trails"></div>
     </div>
   </div>
 
   <script>
-    const states = {
-      Nepal: ["Province No. 1", "Bagmati"],
-      Japan: ["Yamanashi", "Shizuoka"],
+    const stateOptions = {
       Malaysia: ["Sabah", "Sarawak"],
-      USA: ["California", "Colorado", "Alaska"],
-      Switzerland: ["Bernese Oberland", "Valais", "Graubünden"]
+      Nepal: ["Bagmati", "Gandaki"],
+      Japan: ["Yamanashi", "Shizuoka"]
     };
 
-    const mountains = {
-      "Province No. 1": [
-        { name: "Mount Everest", height: "8,848 m", distance: "65 km", time: "7–10 days", image: "placeholder.jpg" },
-        { name: "Lhotse", height: "8,516 m", distance: "62 km", time: "7–9 days", image: "placeholder.jpg" }
-      ],
-      Bagmati: [
-        { name: "Langtang Lirung", height: "7,227 m", distance: "60 km", time: "5–7 days", image: "placeholder.jpg" }
-      ],
-      Yamanashi: [
-        { name: "Mount Fuji", height: "3,776 m", distance: "12 km", time: "5–8 hrs", image: "placeholder.jpg" }
-      ],
-      Shizuoka: [
-        { name: "Mount Akaishi", height: "3,190 m", distance: "20 km", time: "2–3 days", image: "placeholder.jpg" }
-      ],
-      Sabah: [
-        { name: "Mount Kinabalu", height: "4,095 m", distance: "8.7 km", time: "2 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\kinabalu.jpg" }
-      ],
-      Sarawak: [
-        { name: "Mount Dulit", height: "1,311 m", distance: "15 km", time: "8 hrs", image: "placeholder.jpg" }
-      ],
-      California: [
-        { name: "Mount Whitney", height: "4,421 m", distance: "35 km", time: "2–4 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\mount_whitney.jpg" }
-      ],
-      Colorado: [
-        { name: "Pikes Peak", height: "4,302 m", distance: "21 km", time: "1–2 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\pike_peak.jpg" }
-      ],
-      Alaska: [
-        { name: "Denali", height: "6,190 m", distance: "50 km", time: "2–3 weeks", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\denali_mount.jpg" }
-      ],
-      "Bernese Oberland": [
-        { name: "Jungfrau", height: "4,158 m", distance: "16 km", time: "2–3 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\mount_jungfrau.jpg" }
-      ],
-      Valais: [
-        { name: "Matterhorn", height: "4,478 m", distance: "20 km", time: "2–3 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\matterhorn.jpg" }
-      ],
-      Graubünden: [
-        { name: "Piz Bernina", height: "4,049 m", distance: "18 km", time: "2–3 days", image: "C:\Users\charyos\.vscode\cli\index.html\images.img\piz_bernina.jpg" }
-      ]
+    const mountainOptions = {
+      Sabah: ["Kinabalu"],
+      Bagmati: ["Everest"],
+      Yamanashi: ["Fuji"]
     };
-
-    const slides = document.getElementById('slides');
-    const slider = document.getElementById('slider');
-    let currentIndex = 0;
-    let currentMountains = [];
-    let startX = 0;
-    let isDragging = false;
 
     function loadStates() {
-      const country = document.getElementById('country').value;
-      const stateSelect = document.getElementById('state');
-      stateSelect.innerHTML = '<option value="">--Select State--</option>';
-      if (states[country]) {
-        states[country].forEach(state => {
-          const option = document.createElement('option');
-          option.value = state;
-          option.textContent = state;
-          stateSelect.appendChild(option);
+      const country = document.getElementById("country").value;
+      const stateSelect = document.getElementById("state");
+      stateSelect.innerHTML = '<option value="">Select State</option>';
+
+      if (stateOptions[country]) {
+        stateOptions[country].forEach(state => {
+          stateSelect.innerHTML += `<option value="${state}">${state}</option>`;
         });
       }
-      slides.innerHTML = '';
+
+      document.getElementById("mountain").innerHTML = '<option value="">Select Mountain</option>';
+      document.getElementById("start-button-container").innerHTML = '';
     }
 
     function loadMountains() {
-      const state = document.getElementById('state').value;
-      currentMountains = mountains[state] || [];
-      renderSlides();
-      showSlide(0);
+      const state = document.getElementById("state").value;
+      const mountainSelect = document.getElementById("mountain");
+      mountainSelect.innerHTML = '<option value="">Select Mountain</option>';
+
+      if (mountainOptions[state]) {
+        mountainOptions[state].forEach(mountain => {
+          mountainSelect.innerHTML += `<option value="${mountain}">${mountain}</option>`;
+        });
+      }
+
+      const selectedMountain = mountainOptions[state]?.[0];
+      const container = document.getElementById("start-button-container");
+
+      if (selectedMountain === "Kinabalu") {
+        container.innerHTML = '<button onclick="showKinabaluTrails()">Start: Mount Kinabalu Trails</button>';
+      } else {
+        container.innerHTML = '<p style="color: gray;">(Trail details not available)</p>';
+      }
+
+      document.getElementById("trail-list").style.display = "none";
     }
 
-    function renderSlides() {
-      slides.innerHTML = '';
-      currentMountains.forEach(mountain => {
-        const card = document.createElement('div');
-        card.className = 'mountain-card';
-        card.innerHTML = `
-          <img src="${mountain.image}" alt="${mountain.name}">
-          <div class="mountain-info">
-            <h2>${mountain.name}</h2>
-            <p><strong>Height:</strong> ${mountain.height}</p>
-            <p><strong>Distance:</strong> ${mountain.distance}</p>
-            <p><strong>Avg Time:</strong> ${mountain.time}</p>
+    function showKinabaluTrails() {
+      const trailSection = document.getElementById("trail-list");
+      trailSection.style.display = "block";
+
+      const trailData = [
+        {
+          name: "Mesilau Trail (currently closed due to 2015 quake)",
+          image: "trail 1.jpg",
+          description: `Start: Mesilau Nature Resort (~2,000 m asl)<br>
+            Distance: ~17.9 km one-way<br>
+            Elevation Gain: ~2,000–2,200 m<br>
+            Time: ~5–6 h to Layang-Layang + Laban Rata<br>
+            Highlights: Rich biodiversity, ridge views, steeper<br>
+            Difficulty: Challenging`
+        },
+        {
+          name: "Liwagu Trail",
+          image: "trail 2.jpg",
+          description: `Start: Near Balsam Restaurant (~1,560 m asl)<br>
+            Distance: ~5.6 km one-way<br>
+            Elevation Gain: ~300–400 m<br>
+            Time: ~3–4 h one-way<br>
+            Highlights: River views, orchids, birds<br>
+            Difficulty: Moderate`
+        },
+        {
+          name: "Timpohon (Summit) Trail",
+          image: "trail 3.jpg",
+          description: `Start: Timpohon Gate (~1,866 m asl)<br>
+            Distance: ~8.5 km one-way<br>
+            Elevation Gain: ~2,229 m<br>
+            Time: ~7–9 h total<br>
+            Highlights: Granite summit, tree-root staircases<br>
+            Difficulty: Strenuous`
+        },
+        {
+          name: "Silau‑Silau Trail",
+          image: "trail 4.jpg",
+          description: `Start: Kinabalu Park HQ<br>
+            Distance: ~3 km loop<br>
+            Elevation Gain: ~190 m<br>
+            Time: ~1–1.5 h<br>
+            Highlights: Mossy forest, small streams<br>
+            Difficulty: Easy`
+        }
+      ];
+
+      const trailContainer = document.getElementById("kinabalu-trails");
+      trailContainer.innerHTML = "";
+
+      trailData.forEach(trail => {
+        trailContainer.innerHTML += `
+          <div class="trail-card">
+            <h3>${trail.name}</h3>
+            <img src="${trail.image}" alt="${trail.name}">
+            <p>${trail.description}</p>
           </div>
         `;
-        slides.appendChild(card);
       });
     }
-
-    function showSlide(index) {
-      if(index < 0) {
-        currentIndex = currentMountains.length - 1;
-      } else if(index >= currentMountains.length) {
-        currentIndex = 0;
-      } else {
-        currentIndex = index;
-      }
-      slides.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
-
-    function nextSlide() {
-      showSlide(currentIndex + 1);
-    }
-
-    function prevSlide() {
-      showSlide(currentIndex - 1);
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'ArrowRight') nextSlide();
-      if(e.key === 'ArrowLeft') prevSlide();
-    });
-
-    slider.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-      isDragging = true;
-    });
-
-    slider.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      const currentX = e.touches[0].clientX;
-      const diffX = startX - currentX;
-      if (diffX > 50) {
-        nextSlide();
-        isDragging = false;
-      } else if (diffX < -50) {
-        prevSlide();
-        isDragging = false;
-      }
-    });
-
-    slider.addEventListener('touchend', () => {
-      isDragging = false;
-    });
   </script>
-
-  function showTrails() {
-  const trailSection = document.getElementById("trail-list");
-  const trailContainer = document.getElementById("kinabalu-trails");
-
-  trailSection.style.display = "block";
-
-  trailContainer.innerHTML = `
-    <div style="margin-bottom: 40px;">
-      <h3 style="color: #90ee90;">Mesilau Trail (currently closed due to 2015 quake)</h3>
-      <img src="mesilau.jpg" alt="Mesilau Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
-      <p><strong>Start:</strong> Mesilau Nature Resort (~2,000 m asl)</p>
-      <p><strong>Distance:</strong> ~11.1 mi (approx 17.9 km) one-way...</p>
-      <p><strong>Difficulty:</strong> Challenging, scenic route...</p>
-    </div>
-
-    <div style="margin-bottom: 40px;">
-      <h3 style="color: #90ee90;">Liwagu Trail</h3>
-      <img src="liwagu.jpg" alt="Liwagu Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
-      <p><strong>Start:</strong> Near Balsam Restaurant...</p>
-      <p><strong>Distance:</strong> ~5.6 km one-way</p>
-      <p><strong>Difficulty:</strong> Moderate...</p>
-    </div>
-
-    <div style="margin-bottom: 40px;">
-      <h3 style="color: #90ee90;">Timpohon (Summit) Trail</h3>
-      <img src="timpohon.jpg" alt="Timpohon Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
-      <p><strong>Start:</strong> Timpohon Gate (~1,866 m asl)</p>
-      <p><strong>Distance:</strong> ~8.5 km one-way...</p>
-      <p><strong>Difficulty:</strong> Strenuous...</p>
-    </div>
-
-    <div style="margin-bottom: 40px;">
-      <h3 style="color: #90ee90;">Silau‑Silau Trail</h3>
-      <img src="silau.jpg" alt="Silau-Silau Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
-      <p><strong>Start:</strong> Kinabalu Park HQ</p>
-      <p><strong>Distance:</strong> ~3 km loop</p>
-      <p><strong>Difficulty:</strong> Easy...</p>
-    </div>
-
 </body>
 </html>
-
-
