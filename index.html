@@ -258,6 +258,46 @@
       isDragging = false;
     });
   </script>
+
+  function showTrails() {
+  const trailSection = document.getElementById("trail-list");
+  const trailContainer = document.getElementById("kinabalu-trails");
+
+  trailSection.style.display = "block";
+
+  trailContainer.innerHTML = `
+    <div style="margin-bottom: 40px;">
+      <h3 style="color: #90ee90;">Mesilau Trail (currently closed due to 2015 quake)</h3>
+      <img src="mesilau.jpg" alt="Mesilau Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
+      <p><strong>Start:</strong> Mesilau Nature Resort (~2,000 m asl)</p>
+      <p><strong>Distance:</strong> ~11.1 mi (approx 17.9 km) one-way...</p>
+      <p><strong>Difficulty:</strong> Challenging, scenic route...</p>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+      <h3 style="color: #90ee90;">Liwagu Trail</h3>
+      <img src="liwagu.jpg" alt="Liwagu Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
+      <p><strong>Start:</strong> Near Balsam Restaurant...</p>
+      <p><strong>Distance:</strong> ~5.6 km one-way</p>
+      <p><strong>Difficulty:</strong> Moderate...</p>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+      <h3 style="color: #90ee90;">Timpohon (Summit) Trail</h3>
+      <img src="timpohon.jpg" alt="Timpohon Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
+      <p><strong>Start:</strong> Timpohon Gate (~1,866 m asl)</p>
+      <p><strong>Distance:</strong> ~8.5 km one-way...</p>
+      <p><strong>Difficulty:</strong> Strenuous...</p>
+    </div>
+
+    <div style="margin-bottom: 40px;">
+      <h3 style="color: #90ee90;">Silau‑Silau Trail</h3>
+      <img src="silau.jpg" alt="Silau-Silau Trail" style="width: 100%; max-width: 600px; border-radius: 12px; margin-bottom: 10px;">
+      <p><strong>Start:</strong> Kinabalu Park HQ</p>
+      <p><strong>Distance:</strong> ~3 km loop</p>
+      <p><strong>Difficulty:</strong> Easy...</p>
+    </div>
+
 </body>
 </html>
 
